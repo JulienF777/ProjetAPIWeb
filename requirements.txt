@@ -1,0 +1,10 @@
+click==8.1.7
+Flask==2.0.2
+Flask_Caching==2.1.0
+peewee==3.17.1
+pg8000==1.19.5
+psycopg2==2.9.9
+pytest==7.4.4
+redis==5.0.3
+Requests==2.31.0
+rq==1.10.0

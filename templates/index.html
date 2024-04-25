@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Liste des produits</title>
+</head>
+<body>
+    <h1>Liste des produits</h1>
+    <ul>
+        {% for product in products %}
+            <li>
+                {{ product.name }} - {{ product.price }}
+
+                <form id="product-{{ product.id }}" onsubmit="event.preventDefault(); addToCart(this);">
+                    <input type="hidden" name="product_id" value="{{ product.id }}">
+                    <input type="number" name="quantity" min="1" value="1">
+                    <input type="submit" value="Add to cart">
+                </form>
+            </li>
+        {% endfor %}
+    </ul>
+
+    <button onclick="orderProducts()">Order</button>
+
+    <p>
+        description
+        height
+        id
+        image 
+        in_stock 
+        name 
+        price 
+        type
+        weight
+    </p>
+
+    <p id="response"></p>
+</body>
+<script>
+    var cart = [];
+
+    function addToCart(form) {
+        var productId = form.product_id.value;
+        var quantity = parseInt(form.quantity.value);
+
+        var productIndex = cart.findIndex(product => product.id == productId);
+
+        if (productIndex !== -1) {
+            // Product is already in the cart, update the quantity
+            cart[productIndex].quantity += quantity;
+            console.log(cart);
+        } else {
+            // Product is not in the cart, add it
+            cart.push({ id: productId, quantity: quantity });
+            console.log(cart);
+        }
+    }
+
+    function orderProducts() {
+        var order = { products: cart };
+
+        console.log(JSON.stringify(order));
+
+        fetch('/order', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(order)
+        }).then(response => {
+            if (!response.ok) {
+                console.log(response);
+                throw new Error('Network response was not ok'+response);
+            }
+            return response.json();
+        }).then(data => {
+            console.log('Success:', data);
+        }).catch((error) => {
+            console.error('Error:', error);
+        });
+    }
+</script>
+<script>
+    console.log(cart)
+</script>
+</html> 
+

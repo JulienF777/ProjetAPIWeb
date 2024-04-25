@@ -1,0 +1,73 @@
+version: '3'
+
+volumes:
+  postgres_data:
+
+services:
+  database:
+    hostname: "database"
+    image: postgres:12-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    environment:
+    #'db', user='postgres', password='root', host='localhost', port='5432')
+      POSTGRES_HOST: database
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: db
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB} -t 1" ]
+      interval: 1s
+      timeout: 10s
+      retries: 20
+      start_period: 1s
+
+  cache:
+    image: redis:5
+    ports:
+      - "6379:6379"
+    expose:
+      - '6379'
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - DB_HOST=db
+      - DB_USER=user
+      - DB_PASSWORD=pass
+      - DB_PORT=5432
+      - DB_NAME=api8inf349
+
+  web:
+    build:
+      #This ensures that changes to the Dockerfile are detected, triggering a rebuild
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    environment:
+      POSTGRES_HOST: database
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: db
+    command: bash -c "flask init-db && flask run --host=0.0.0.0 --port=5000"
+    depends_on:
+      database:
+        condition: service_healthy
+      cache:
+        condition: service_started
+  
+  worker:
+        build: .
+        command: rqworker --url redis://cache:6379/0
+        depends_on:
+          database:
+           condition: service_healthy
+          cache:
+            condition: service_started
+        environment:
+          POSTGRES_HOST: database
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: root
+          POSTGRES_DB: db
+
