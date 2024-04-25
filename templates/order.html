@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Shop - My order</title>
+</head>
+<body>
+    <h1>My order</h1>
+    <ul class="infos">
+        <li>Order id : {{ order.order.id }}</li>
+        <li>Email : {% if order.order.email %} {{ order.order.email }} {% else %} No email {% endif %}</li>
+        <li>Payment status : {% if order.order.paid %} Payed {% else %} No payed {% endif %}</li>
+        <li>Credit card : {{ order.order.credit_card }}</li>
+        <li>
+            <ul class="products">
+                Products :
+                {% for product in order.order.products %}
+                <li>(id:{{ product.id }}) <b>{{ product.name }}</b> - Quantity : {{ product.quantity }} - Price : {{ product.price }}$</li>
+                {% endfor %}
+            </ul>
+        </li>
+        <li>Shipping information : {{ order.order.shipping_information }}</li>
+        <li class="shipping-price">Shipping cost : {{ order.order.shipping_price }}$</li>
+        <li class="total-price">Total price : {{ order.order.total_price }}$</li>
+    </ul>
+
+    <p>
+            
+            'credit_card': 
+            'shipping_information':
+          
+            'transaction': json.loads(order.transaction) if order.transaction else {},
+            'products': [
+                {
+                    'id': order_product.product.id,
+                    'quantity': order_product.quantity,
+                    'name': order_product.product.name,
+                    'price': order_product.product.price
+                }
+                for order_product in order_products
+            ],
+            'debug': order.debug if order.debug else {}
+    </p>
+
+    <p id="response"></p>
+</body>
+<script>
+    var cart = [];
+
+    function addToCart(form) {
+        var productId = form.product_id.value;
+        var quantity = parseInt(form.quantity.value);
+
+        var productIndex = cart.findIndex(product => product.id == productId);
+
+        if (productIndex !== -1) {
+            // Product is already in the cart, update the quantity
+            cart[productIndex].quantity += quantity;
+            console.log(cart);
+        } else {
+            // Product is not in the cart, add it
+            cart.push({ id: productId, quantity: quantity });
+            console.log(cart);
+        }
+    }
+
+    function orderProducts() {
+        var order = { products: cart };
+
+        console.log(JSON.stringify(order));
+
+        fetch('/order', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(order)
+        }).then(response => {
+            if (!response.ok) {
+                console.log(response);
+                throw new Error('Network response was not ok'+response);
+            }
+            return response.json();
+        }).then(data => {
+            console.log('Success:', data);
+        }).catch((error) => {
+            console.error('Error:', error);
+        });
+    }
+</script>
+<script>
+    console.log(cart)
+</script>
+
+<style type="text/css">
+
+    /*/////////////// Général ///////////////*/
+    
+    * {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #F2F2F2;
+    }
+    
+    body {
+        width: 90%;
+        margin: 0 auto;
+    }
+    
+    /*/////////////// Titre ///////////////*/
+    
+    h1 {
+        text-align: center;
+        color: #F24F13;
+        width: 100%;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #F2C1AE;
+    }
+    
+    /*/////////////// Infos commande ///////////////*/
+
+    ul {
+        list-style-type: none;
+    }
+
+    ul li {
+        margin: 20px 0;
+    }
+    
+    .products {
+        padding: 30px 25px;
+        background-color: #F2C1AE;
+        border-radius: 10px;
+    }
+    .products li {
+        padding: 15px 25px;
+        background-color: #F2F2F2;
+        box-shadow: 4px 4px 4px #F2865E;
+        border-radius: 10px;
+    }
+
+    .shipping-price {
+        font-size: 1.1rem;
+        font-weight: bold;
+    }
+
+    .total-price {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #F24F13;
+    }
+
+    </style>
+</html> 
