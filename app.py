@@ -338,7 +338,8 @@ def order_route(identifier: int):
                 }
             }
 
-            return jsonify(order_data), 200
+            #  Rendre le template Jinja avec les données de la commande
+            return render_template("order.html", order=order_data)
         except OrdersRow.DoesNotExist:
             return jsonify({"error": "Commande non trouvée."}), 404
         
