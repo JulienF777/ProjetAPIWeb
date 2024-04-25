@@ -8,7 +8,7 @@
     <ul class="infos">
         <li>Order id : {{ order.order.id }}</li>
         <li>Email : {% if order.order.email %} {{ order.order.email }} {% else %} No email {% endif %}</li>
-        <li>Payment status : {% if order.order.paid %} Payed {% else %} No payed {% endif %}</li>
+        <li>Payment status : {% if order.order.paid %} Payed {% else %} Not payed {% endif %}</li>
         <li>Credit card : {{ order.order.credit_card }}</li>
         <li>
             <ul class="products">
@@ -23,23 +23,7 @@
         <li class="total-price">Total price : {{ order.order.total_price }}$</li>
     </ul>
 
-    <p>
-            
-            'credit_card': 
-            'shipping_information':
-          
-            'transaction': json.loads(order.transaction) if order.transaction else {},
-            'products': [
-                {
-                    'id': order_product.product.id,
-                    'quantity': order_product.quantity,
-                    'name': order_product.product.name,
-                    'price': order_product.product.price
-                }
-                for order_product in order_products
-            ],
-            'debug': order.debug if order.debug else {}
-    </p>
+
 
     <p id="response"></p>
 </body>
