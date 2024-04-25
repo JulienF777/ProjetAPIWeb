@@ -1,0 +1,29 @@
+import peewee
+import os
+
+# Define your database connection parameters
+
+db = peewee.PostgresqlDatabase(
+    os.environ.get('POSTGRES_DB'),
+    user=os.environ.get('POSTGRES_USER'),
+    password=os.environ.get('POSTGRES_PASSWORD'),
+    host=os.environ.get('POSTGRES_HOST'),
+    port=int(os.environ.get('POSTGRES_PORT', 5432))  # Default port 5432 if not specified
+)
+
+try:
+    # Connect to the database
+    db.connect()
+    print("Database connection successful!")
+    
+    # Perform any database operations here (e.g., querying tables)
+    # For example:
+    # for row in MyModel.select():
+    #     print(row)
+    
+    # Don't forget to close the database connection when done
+    db.close()
+    print("Database connection closed.")
+    
+except peewee.OperationalError as e:
+    print("Error connecting to the database:", e)
